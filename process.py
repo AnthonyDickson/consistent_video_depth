@@ -6,13 +6,13 @@ import os
 from os.path import join as pjoin
 import shutil
 
-from depth_fine_tuning import DepthFineTuner
-from flow import Flow
-from scale_calibration import calibrate_scale
-from tools import make_video as mkvid
-from utils.frame_range import FrameRange, OptionalSet
-from utils.helpers import print_banner, print_title
-from video import (Video, sample_pairs)
+from .depth_fine_tuning import DepthFineTuner
+from .flow import Flow
+from .scale_calibration import calibrate_scale
+from .tools import make_video as mkvid
+from .utils.frame_range import FrameRange, OptionalSet
+from .utils.helpers import print_banner, print_title
+from .video import (Video, sample_pairs)
 
 
 class DatasetProcessor:

@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 
-import cv2
 import json
-import numpy as np
 import os
 from os.path import join as pjoin
+
+import cv2
+import numpy as np
 import torch
 
-from third_party.OpticalFlowToolkit.lib import flowlib
-
-from utils.url_helpers import get_model_from_url
-
-import optical_flow_flownet2_homography
-from utils import (
+from . import optical_flow_flownet2_homography
+from .third_party.OpticalFlowToolkit.lib import flowlib
+from .utils import (
     consistency, geometry, image_io, visualization
 )
-from utils.helpers import dotdict, mkdir_ifnotexists
-from utils.torch_helpers import _device
+from .utils.helpers import dotdict, mkdir_ifnotexists
+from .utils.torch_helpers import _device
+from .utils.url_helpers import get_model_from_url
 
 
 def warp_by_flow(color, flow):
@@ -68,7 +67,7 @@ class Flow:
                 result_pairs.extend(cur_pairs)
             else:
                 print("Bad frame pair(%d, %d). Overlap_ratio=" % (pair[0], pair[1]),
-                    mask_ratios)
+                      mask_ratios)
 
         print(f"Filtered {len(result_pairs)} / {len(frame_pairs)} good frame pairs")
 
@@ -101,10 +100,11 @@ class Flow:
         if model_name == "flownet2-kitti":
             model_file = get_model_from_url(
                 "https://www.dropbox.com/s/mme80czrpbqal7k/flownet2-kitti.pth.tar?dl=1",
-                model_name + ".pth",
+                local_path=model_name + ".pth",
+                path_root=os.environ["WEIGHTS_PATH"]
             )
         else:
-            model_file = f"checkpoints/{model_name}.pth"
+            model_file = os.path.join(os.environ['WEIGHTS_PATH'], f"{model_name}.pth")
 
         mkdir_ifnotexists("%s/flow" % self.path)
 
@@ -162,7 +162,7 @@ class Flow:
         for flow_name in flow_names:
             indices = get_indices(flow_name)
             if os.path.isfile(vis_fmt.format(*indices)) and (
-                not warp or os.path.isfile(warp_fmt.format(*indices))
+                    not warp or os.path.isfile(warp_fmt.format(*indices))
             ):
                 continue
 

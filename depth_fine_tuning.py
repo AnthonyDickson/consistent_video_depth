@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 
-import cv2
-import itertools
 import json
-import math
 import os
 from os.path import join as pjoin
-import time
-import torch
-from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
-import torchvision.utils as vutils
 from typing import Dict
 
-from utils.helpers import SuppressedStdout
-from monodepth.depth_model_registry import get_depth_model
+import cv2
+import itertools
+import math
+import time
+import torch
+import torchvision.utils as vutils
+from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
-import optimizer
-from loaders.video_dataset import VideoDataset, VideoFrameDataset
-from loss.joint_loss import JointLoss
-from loss.loss_params import LossParams
-from utils import image_io, visualization
-from utils.torch_helpers import to_device
+from . import optimizer
+from .loaders.video_dataset import VideoDataset, VideoFrameDataset
+from .loss.joint_loss import JointLoss
+from .loss.loss_params import LossParams
+from .monodepth.depth_model_registry import get_depth_model
+from .utils import image_io, visualization
+from .utils.helpers import SuppressedStdout
+from .utils.torch_helpers import to_device
 
 
 class DepthFineTuningParams:

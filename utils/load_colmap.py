@@ -4,23 +4,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import numpy as np
-from third_party.colmap.scripts.python.read_write_model import (
+
+from ..third_party.colmap.scripts.python.read_write_model import (
     CAMERA_MODELS,
     rotmat2qvec,
     Camera,
     BaseImage,
     write_model
 )
-# for exporting these functions to the rest of the code
-from third_party.colmap.scripts.python.read_dense import read_array
-from third_party.colmap.scripts.python.read_write_model import (
-    qvec2rotmat,
-    read_images_binary,
-    read_points3d_binary,
-    read_cameras_binary,
-    read_model,
-)
-
 
 CAMERA_NAME_TO_IDS = {
     c.model_name: c.model_id for c in CAMERA_MODELS
@@ -96,10 +87,10 @@ def to_colmap(intrinsics, extrinsics, src_im_size=None, dst_im_size=None):
 
 
 def save_colmap(
-    path, intrinsics, extrinsics, src_im_size=None, dst_im_size=None, ext=".txt"
+        path, intrinsics, extrinsics, src_im_size=None, dst_im_size=None, ext=".txt"
 ):
     cameras, images, points3D = to_colmap(intrinsics, extrinsics,
-        src_im_size=src_im_size, dst_im_size=dst_im_size)
+                                          src_im_size=src_im_size, dst_im_size=dst_im_size)
     write_model(cameras, images, points3D, path, ext)
 
 
@@ -112,7 +103,7 @@ def cameras_to_intrinsics(cameras, camera_ids, size_new):
     # params = f, cx, cy
     assert all(
         (c.model == "SIMPLE_PINHOLE" or c.model == "PINHOLE"
-            or c.model == "SIMPLE_RADIAL"
+         or c.model == "SIMPLE_RADIAL"
          for c in cameras.values()))
 
     intrinsics = []

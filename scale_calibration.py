@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 
-import cv2
-import numpy as np
+import logging
 import os
 from os.path import join as pjoin
-import logging
 from typing import Optional, Set
+
+import cv2
+import numpy as np
 import torch
 
-from utils.helpers import SuppressedStdout
-
-from loaders.video_dataset import _dtype, load_color
-from tools.colmap_processor import COLMAPParams, COLMAPProcessor
-from utils import (
+from .loaders.video_dataset import _dtype, load_color
+from .third_party.colmap.scripts.python.read_dense import read_array
+from .third_party.colmap.scripts.python.read_write_model import read_model
+from .tools.colmap_processor import COLMAPParams, COLMAPProcessor
+from .utils import (
     image_io,
     geometry,
-    load_colmap,
     visualization,
 )
-from utils.helpers import print_banner
-from utils.torch_helpers import _device
+from .utils.helpers import SuppressedStdout
+from .utils.helpers import print_banner
+from .utils.load_colmap import convert_calibration
+from .utils.torch_helpers import _device
 
 
 class ScaleCalibrationParams:
@@ -71,11 +73,11 @@ def prepare_colmap_color(video):
 
 
 def make_camera_params_from_colmap(path, sparse_dir):
-    cameras, images, points3D = load_colmap.read_model(path=sparse_dir, ext=".bin")
+    cameras, images, points3D = read_model(path=sparse_dir, ext=".bin")
     size_new = image_io.load_raw_float32_image(
         pjoin(path, "color_down", "frame_{:06d}.raw".format(0))
     ).shape[:2][::-1]
-    intrinsics, extrinsics = load_colmap.convert_calibration(
+    intrinsics, extrinsics = convert_calibration(
         cameras, images, size_new
     )
     return intrinsics, extrinsics
@@ -212,7 +214,7 @@ def calibrate_scale(video, out_dir, frame_range, args):
                     colmap_depth_fn
                 )
                 continue
-            cmp_depth = load_colmap.read_array(colmap_depth_fn)
+            cmp_depth = read_array(colmap_depth_fn)
             inv_cmp_depth = 1.0 / cmp_depth
             ix = np.isinf(inv_cmp_depth) | (inv_cmp_depth < 0)
             inv_cmp_depth[ix] = float("nan")

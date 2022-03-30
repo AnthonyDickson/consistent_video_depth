@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
+import os
+import warnings
+from collections import OrderedDict
 
 import torch
 import torch.autograd as autograd
 
-from utils.helpers import SuppressedStdout
-from utils.url_helpers import get_model_from_url
+from ..utils.helpers import SuppressedStdout
+from ..utils.url_helpers import get_model_from_url
 
 from .mannequin_challenge.models import pix2pix_model
 from .mannequin_challenge.options.train_options import TrainOptions
@@ -18,7 +21,7 @@ class MannequinChallengeModel(DepthModel):
     learning_rate = 0.0004
     lambda_view_baseline = 0.1
 
-    def __init__(self):
+    def __init__(self, model_path_override=None):
         super().__init__()
 
         parser = TrainOptions()
@@ -26,9 +29,10 @@ class MannequinChallengeModel(DepthModel):
         params = parser.parser.parse_args(["--input", "single_view"])
         params.isTrain = False
 
-        model_file = get_model_from_url(
+        model_file = model_path_override or get_model_from_url(
             "https://storage.googleapis.com/mannequinchallenge-data/checkpoints/best_depth_Ours_Bilinear_inc_3_net_G.pth",
-            "mc.pth"
+            local_path="mc.pth",
+            path_root=os.environ["WEIGHTS_PATH"]
         )
 
         class FixedMcModel(pix2pix_model.Pix2PixModel):
@@ -38,7 +42,28 @@ class MannequinChallengeModel(DepthModel):
                 return torch.load(model_file)
 
         with SuppressedStdout():
-            self.model = FixedMcModel(params)
+            try:
+                self.model = FixedMcModel(params)
+            except RuntimeError:
+                warnings.warn(f"Could not create model. Attempting state_dict fix...")
+                # Sometimes a model will fail to load because the state_dict keys have the 'module.' prefix.
+                # This is because the weights were from a model that was wrapped in torch.nn.DataParallel(...),
+                # but the new model that is loading the weights has not been wrapped by this and therefore does not
+                # expect the prefix.
+                # We can try fix this error by rebuilding the state dict, removing the 'module.' prefix from the keys.
+                original_state_dict = torch.load(model_file)
+
+                # Temporarily replace weights file with fixed version.
+                fixed_state_dict = OrderedDict(
+                    [(key.replace("module.", ""), value) for key, value in original_state_dict.items()]
+                )
+                torch.save(fixed_state_dict, model_file)
+
+                try:
+                    self.model = FixedMcModel(params)
+                finally:
+                    # Revert changes made to state_dict.
+                    torch.save(original_state_dict, model_file)
 
     def train(self):
         self.model.switch_to_train()

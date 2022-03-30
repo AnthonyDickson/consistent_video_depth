@@ -3,8 +3,8 @@
 
 import torch
 import torch.nn as nn
-from utils.torch_helpers import _device
-from utils.geometry import (
+
+from ..utils.geometry import (
     pixel_grid,
     focal_length,
     project,
@@ -12,6 +12,7 @@ from utils.geometry import (
     reproject_points,
     sample,
 )
+from ..utils.torch_helpers import _device
 
 
 def select_tensors(x):
@@ -33,8 +34,8 @@ def weighted_mse_loss(input, target, weights, dim=1, eps=1e-6):
             scalar
     """
     assert (
-        input.ndimension() == target.ndimension()
-        and input.ndimension() == weights.ndimension()
+            input.ndimension() == target.ndimension()
+            and input.ndimension() == weights.ndimension()
     )
     # normalize to sum=1
     B = weights.shape[0]
@@ -57,8 +58,8 @@ def weighted_rmse_loss(input, target, weights, dim=1, eps=1e-6):
             scalar = weighted_mean(rmse_along_dim)
     """
     assert (
-        input.ndimension() == target.ndimension()
-        and input.ndimension() == weights.ndimension()
+            input.ndimension() == target.ndimension()
+            and input.ndimension() == weights.ndimension()
     )
     # normalize to sum=1
     B = weights.shape[0]
@@ -139,15 +140,15 @@ class ConsistencyLoss(nn.Module):
         inv_idxs = [1, 0]
 
         for (
-            points_cam_ref,
-            tgt_points_cam_tgt,
-            pixels_ref,
-            flows_ref,
-            masks_ref,
-            intrinsics_ref,
-            intrinsics_tgt,
-            extrinsics_ref,
-            extrinsics_tgt,
+                points_cam_ref,
+                tgt_points_cam_tgt,
+                pixels_ref,
+                flows_ref,
+                masks_ref,
+                intrinsics_ref,
+                intrinsics_tgt,
+                extrinsics_ref,
+                extrinsics_tgt,
         ) in zip(
             points_cam_pair,
             points_cam_pair[inv_idxs],
@@ -168,7 +169,7 @@ class ConsistencyLoss(nn.Module):
 
             if self.opt.lambda_reprojection > 0:
                 reproj_dist = torch.norm(pixels_tgt - matched_pixels_tgt,
-                    dim=1, keepdim=True)
+                                         dim=1, keepdim=True)
                 reproj_losses.append(
                     weighted_mean_loss(self.dist(reproj_dist), masks_ref)
                 )
@@ -183,7 +184,7 @@ class ConsistencyLoss(nn.Module):
                 )
 
                 disp_diff = 1.0 / points_cam_tgt[:, -1:, ...] \
-                    - 1.0 / warped_tgt_points_cam_tgt[:, -1:, ...]
+                            - 1.0 / warped_tgt_points_cam_tgt[:, -1:, ...]
 
                 disp_losses.append(
                     f * weighted_mean_loss(self.dist(disp_diff), masks_ref)
@@ -208,9 +209,9 @@ class ConsistencyLoss(nn.Module):
         return torch.mean(reproj_loss + disp_loss), batch_losses
 
     def __call__(
-        self,
-        depths,
-        metadata,
+            self,
+            depths,
+            metadata,
     ):
         """Compute total loss.
 

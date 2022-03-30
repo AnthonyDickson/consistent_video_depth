@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 
-import cv2
-import logging
 import os
-from os.path import join as pjoin
-import sys
 import tempfile
-from utils import (frame_sampling, image_io)
-from utils.helpers import mkdir_ifnotexists
+from os.path import join as pjoin
 
+import cv2
+import sys
+
+from .utils import frame_sampling, image_io
+from .utils.helpers import mkdir_ifnotexists
 
 ffmpeg = "ffmpeg"
 ffprobe = "ffprobe"
 
 
 def sample_pairs(frame_range, flow_ops):
-    #TODO: update the frame range with reconstruction range
+    # TODO: update the frame range with reconstruction range
     name_mode_map = frame_sampling.SamplePairsMode.name_mode_map()
     opts = [
         frame_sampling.SamplePairsOptions(mode=name_mode_map[op]) for op in flow_ops
@@ -73,7 +73,7 @@ class Video:
         def parse_line(line, token):
             if line[: len(token)] != token:
                 sys.exit("ERROR: record is malformed, expected to find '%s'." % token)
-            return line[len(token) :]
+            return line[len(token):]
 
         ffprobe_cmd = "%s %s -select_streams v:0 -show_frames" % (
             ffprobe,
@@ -152,7 +152,7 @@ class Video:
         self.check_frames(frame_dir, "png")
 
     def downscale_frames(
-        self, subdir, max_size, ext, align=16, full_subdir="color_full"
+            self, subdir, max_size, ext, align=16, full_subdir="color_full"
     ):
         full_dir = pjoin(self.path, full_subdir)
         down_dir = pjoin(self.path, subdir)

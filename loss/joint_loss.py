@@ -8,8 +8,8 @@ from torch.nn import Parameter
 
 from .parameter_loss import ParameterLoss
 from .consistency_loss import ConsistencyLoss
-from utils.torch_helpers import _device
-from loaders.video_dataset import _dtype
+from ..utils.torch_helpers import _device
+from ..loaders.video_dataset import _dtype
 
 
 class JointLoss(torch.nn.Module):

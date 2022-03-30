@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 
-import os
-import cv2
-from os.path import join as pjoin
 import json
-import math
-import numpy as np
-import torch.utils.data as data
-import torch
+import os
+from os.path import join as pjoin
 from typing import Optional
 
-from utils import image_io, frame_sampling as sampling
+import cv2
+import numpy as np
+import torch
+import torch.utils.data as data
 
+from ..utils import image_io, frame_sampling as sampling
 
 _dtype = torch.float32
 

@@ -3,14 +3,15 @@
 
 import argparse
 import copy
+import os
+
 import cv2
 import numpy as np
-import os
 import torch
 
-from third_party.flownet2.models import FlowNet2
-from third_party.OpticalFlowToolkit.lib.flowlib import flow_to_image
-from utils.image_io import save_raw_float32_image
+from .third_party.OpticalFlowToolkit.lib.flowlib import flow_to_image
+from .third_party.flownet2.models import FlowNet2
+from .utils.image_io import save_raw_float32_image
 
 
 class FlowInfer(torch.utils.data.Dataset):
@@ -65,7 +66,7 @@ class FlowInfer(torch.utils.data.Dataset):
 
 def detectAndDescribe(image):
     # detect and extract features from the image
-    descriptor = cv2.xfeatures2d.SURF_create()
+    descriptor = cv2.SIFT_create()
     (kps, features) = descriptor.detectAndCompute(image, None)
 
     # convert the keypoints from KeyPoint objects to NumPy
@@ -128,7 +129,7 @@ def parse_args():
         nargs=2,
         default=None,
         help="If size is not None, resize the flow to size."
-        + " O.w., resize based on max_size and divide.",
+             + " O.w., resize based on max_size and divide.",
     )
     parser.add_argument("--max_size", type=int, default=None)
     parser.add_argument("--divide", type=int, default=1)

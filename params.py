@@ -3,13 +3,12 @@
 
 import argparse
 
-from monodepth.depth_model_registry import get_depth_model, get_depth_model_list
-
-from depth_fine_tuning import DepthFineTuningParams
-from scale_calibration import ScaleCalibrationParams
-from utils import frame_sampling, frame_range
-from tools.colmap_processor import COLMAPParams
-from tools.make_video import MakeVideoParams
+from .depth_fine_tuning import DepthFineTuningParams
+from .monodepth.depth_model_registry import get_depth_model, get_depth_model_list
+from .scale_calibration import ScaleCalibrationParams
+from .tools.colmap_processor import COLMAPParams
+from .tools.make_video import MakeVideoParams
+from .utils import frame_sampling, frame_range
 
 
 class Video3dParamsParser:
