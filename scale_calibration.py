@@ -157,7 +157,7 @@ def calibrate_scale(video, out_dir, frame_range, args):
     # COLMAP reconstruction.
     print_banner("COLMAP reconstruction")
 
-    colmap_dir = pjoin(video.path, 'colmap_dense')
+    colmap_dir = args.colmap_path if 'colmap_path' in args else pjoin(video.path, 'colmap_dense')
     src_meta_file = pjoin(colmap_dir, "metadata.npz")
 
     colmap = COLMAPProcessor(args.colmap_bin_path)
